@@ -5,8 +5,7 @@ import React, { useState, useEffect } from "react";
 import ActionLogForm from "@/app/components/ActionLogForm";
 import ProgressBar from "@/app/components/ProgressBar";
 import ProgressChart from "@/app/components/ProgressChart";
-import Leaderboard from "@/app/components/LeaderBoard";
-import ThemeSwitcher from "@/app/components/ThemeSwitcher";
+// import Leaderboard from "@/app/components/LeaderBoard";
 
 const Tracker = () => {
   const userId = "testUser"; // Replace with actual user authentication logic
@@ -46,7 +45,6 @@ const Tracker = () => {
         Track Your Progress
       </h1>
       <div className="absolute right-4 top-4">
-        <ThemeSwitcher />
       </div>
 
       {/* Action Logging Form */}
@@ -70,10 +68,7 @@ const Tracker = () => {
       </div>
 
       {/* Leaderboard */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold mb-3">Leaderboard</h2>
-        <Leaderboard/>
-      </div>
+      
     </div>
   );
 };

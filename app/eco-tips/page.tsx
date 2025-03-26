@@ -1,16 +1,17 @@
 // app/eco-tips/page.tsx
 import React from "react";
 import EcoTips from "./EcoTips";
-import ThemeSwitcher from "@/app/components/ThemeSwitcher"; // Correct import path
+import Layout from "@/app/components/Layout";
 
 const EcoTipsPage = () => {
   return (
-    <div className="relative"> {/* Make the container relative for absolute positioning */}
-      <div className="absolute right-4 top-4">
-        <ThemeSwitcher />
+    <Layout>
+      <div className="relative">
+        <div className="absolute right-4 top-4 z-50">
+        </div>
+        <EcoTips />
       </div>
-      <EcoTips />
-    </div>
+    </Layout>
   );
 };
 

@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import ClientWrapper from "./ClientWrapper"
 import Link from "next/link"
 import { Leaf, Calculator, Lightbulb, LineChart, MapPin, Mail, Menu, X, Users, ArrowRight, Globe } from "lucide-react"
-import ThemeSwitcher from "@/app/components/ThemeSwitcher"
 import { Button } from "@/app/components/ui/button"
 
 const NavLink = ({ href = "/", icon, text, active }) => (
@@ -78,7 +77,7 @@ const HomePage = () => {
   return (
     <ClientWrapper>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-        {/* Navigation Bar */}
+        {/* Navigation Bar
         <nav
           className={`fixed w-full top-0 z-50 transition-all duration-300 ${
             scrollPosition > 50 ? "bg-green-600 dark:bg-green-800 shadow-lg" : "bg-transparent"
@@ -100,7 +99,6 @@ const HomePage = () => {
               </div>
 
               <div className="flex items-center space-x-4">
-                <ThemeSwitcher />
                 <div className="md:hidden">
                   <button
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -124,7 +122,7 @@ const HomePage = () => {
               </div>
             </div>
           )}
-        </nav>
+        </nav> */}
 
         {/* Main Content */}
         <main>
@@ -140,14 +138,14 @@ const HomePage = () => {
                 <Link href="/carbon-calculator">
                   <Button
                     variant="outline"
-                    className="!border-2 !border-white !text-white hover:!bg-green-700 dark:hover:!bg-green-900 transition-all"
+                    className="!border-2 text-white bg-#16a34a hover:!bg-green-700 hover:text-white transition-all"
                   >
                     Get Started
                   </Button>
                 </Link>
                 <Button 
                   variant="outline"
-                  className="!border-2 !border-white !text-white hover:!bg-green-700 dark:hover:!bg-green-900 transition-all"
+                  className="!border-2 text-white bg-#16a34a hover:!bg-green-700 hover:text-white transition-all"
                 >
                   Learn More
                 </Button>
@@ -223,12 +221,14 @@ const HomePage = () => {
               <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
                 Join our community of eco-warriors and start your journey towards a sustainable lifestyle.
               </p>
+              <Link href="/carbon-calculator"> 
               <Button 
                 className="!bg-green-600 hover:!bg-green-700 dark:!bg-green-700 dark:hover:!bg-green-800 !text-white transition-all inline-flex items-center"
-              >
+                >
                 Start Your Green Journey
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
+              </Link>
             </div>
           </section>
         </main>

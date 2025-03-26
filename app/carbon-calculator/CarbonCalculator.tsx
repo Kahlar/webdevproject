@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Car, Lightbulb, Home, Apple, Moon, Sun } from "lucide-react";
-import ThemeSwitcher from "@/app/components/ThemeSwitcher";
+import { Car, Home, Apple, } from "lucide-react";
 import { Button } from "@/app/components/ui/button"; // Importing Button from Shadcn UI
 import { Input } from "@/app/components/ui/input"; // Importing Input from Shadcn UI
 
@@ -84,9 +83,9 @@ const CarbonCalculator = () => {
                 {/* Header */}
                 <div className="text-center mb-12 relative">
                     {/* Theme Switcher */}
-                    <div className="absolute right-0 top-0">
+                    {/* <div className="absolute right-0 top-0">
                         <ThemeSwitcher />
-                    </div>
+                    </div> */}
 
                     <h1 className="text-5xl font-extrabold text-green-700 dark:text-green-300 mb-4 tracking-tight">
                         Carbon Footprint Calculator
