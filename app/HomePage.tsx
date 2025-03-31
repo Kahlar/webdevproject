@@ -5,8 +5,22 @@ import ClientWrapper from "./ClientWrapper"
 import Link from "next/link"
 import { Leaf, Calculator, Lightbulb, LineChart, MapPin, Mail, Menu, X, Users, ArrowRight, Globe } from "lucide-react"
 import { Button } from "@/app/components/ui/button"
+import { ReactNode } from "react"
 
-const NavLink = ({ href = "/", icon, text, active }) => (
+interface NavLinkProps {
+  href?: string;
+  icon: ReactNode;
+  text: string;
+  active?: boolean;
+}
+
+interface PreviewCardProps {
+  icon: ReactNode;
+  title: string;
+  description: string;
+}
+
+const NavLink: React.FC<NavLinkProps> = ({ href = "/", icon, text, active }) => (
   <Link
     href={href}
     className={`flex items-center space-x-1 hover:text-green-200 transition-colors ${
@@ -18,7 +32,7 @@ const NavLink = ({ href = "/", icon, text, active }) => (
   </Link>
 )
 
-const MobileNavLink = ({ href = "/", icon, text, active }) => (
+const MobileNavLink: React.FC<NavLinkProps> = ({ href = "/", icon, text, active }) => (
   <Link
     href={href}
     className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium ${
@@ -32,7 +46,7 @@ const MobileNavLink = ({ href = "/", icon, text, active }) => (
   </Link>
 )
 
-const PreviewCard = ({ icon, title, description }) => (
+const PreviewCard: React.FC<PreviewCardProps> = ({ icon, title, description }) => (
   <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
     <div className="flex flex-col items-center text-center">
       <div className="mb-4">{icon}</div>
