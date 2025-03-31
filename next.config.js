@@ -10,6 +10,8 @@ const nextConfig = {
   experimental: {
     serverActions: true,
   },
+  optimizeFonts: true,
+  swcMinify: true,
   async headers() {
     return [
       {
