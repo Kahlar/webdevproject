@@ -10,10 +10,6 @@ const nextConfig = {
       },
     ],
   },
-  // Server Actions are now stable in Next.js 14
-  experimental: {
-    serverActions: true
-  },
   // Fix module resolution
   webpack: (config: any) => {
     config.resolve.fallback = {

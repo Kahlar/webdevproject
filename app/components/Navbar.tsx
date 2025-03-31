@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { House, Calculator, Leaf, Users, MapPin, ShoppingCart, Mail } from "lucide-react";
+import { Home, Calculator, Leaf, Users, MapPin, ShoppingCart, Mail } from "lucide-react";
 
 const Navbar = () => {
     return (
@@ -16,7 +16,7 @@ const Navbar = () => {
                 {/* Navigation Links */}
                 <div className="flex space-x-6">
                     <Link href="/" className="flex items-center space-x-2 text-white font-bold dark:hover:text-green-400">
-                        <House className="w-5 h-5 text-white" /> <span>Home</span>
+                        <Home className="w-5 h-5 text-white" /> <span>Home</span>
                     </Link>
                     <Link href="/carbon-calculator" className="flex items-center space-x-2 font-bold text-white dark:text-gray-300 dark:hover:text-green-400">
                         <Calculator className="w-5 h-5 text-white" /> <span>Carbon Calculator</span>

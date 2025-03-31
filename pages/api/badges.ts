@@ -1,13 +1,7 @@
 // pages/api/badges.ts
-import { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import clientPromise from '../../lib/mongodb';
 import { config } from '../../app/config';
-
-const badges = [
-  { name: 'Eco-Newbie', threshold: 0 },
-  { name: 'Green Warrior', threshold: 100 },
-  { name: 'Planet Protector', threshold: 500 },
-];
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
@@ -18,26 +12,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const { userId } = req.query;
 
-      // Retrieve user from the database
-      const user = await usersCollection.findOne({ userId: userId });
-
-      if (user) {
-        // Determine the badge based on points
-        let badge = 'Eco-Newbie';
-        for (let i = badges.length - 1; i >= 0; i--) {
-          if ((user.points || 0) >= badges[i].threshold) {
-            badge = badges[i].name;
-            break;
-          }
-        }
-
-        res.status(200).json({ badge: badge });
-      } else {
-        res.status(404).json({ message: 'User not found' });
+      if (!userId) {
+        return res.status(400).json({ message: 'User ID is required' });
       }
-    } catch (error) {
+
+      // Get user's total points
+      const user = await usersCollection.findOne({ userId: userId });
+      const totalPoints = user?.points || 0;
+
+      // Define badge thresholds
+      const badges = {
+        "Eco Novice": 0,
+        "Green Guardian": 100,
+        "Earth Champion": 500,
+        "Planet Protector": 1000,
+        "Climate Hero": 5000
+      };
+
+      // Determine current badge
+      let currentBadge = "Eco Novice";
+      for (const [badge, threshold] of Object.entries(badges)) {
+        if (totalPoints >= threshold) {
+          currentBadge = badge;
+        }
+      }
+
+      res.status(200).json({ badge: currentBadge, points: totalPoints });
+    } catch (error: any) {
       console.error(error);
-      res.status(500).json({ message: 'Failed to retrieve user badge', error: error.message });
+      res.status(500).json({ message: 'Failed to retrieve user badge', error: error?.message || 'Unknown error' });
     }
   } else {
     res.status(405).json({ message: 'Method Not Allowed' });
