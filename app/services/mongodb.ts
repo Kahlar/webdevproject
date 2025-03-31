@@ -1,8 +1,8 @@
 import { MongoClient } from 'mongodb';
+import { env } from '../utils/env';
 
-// Temporary hardcoded connection for deployment
-const uri = "mongodb+srv://aishiktokdarxyz:ABCDE@reactproj.tdyf5.mongodb.net/?retryWrites=true&w=majority&appName=ReactProj";
-const dbName = "greensphere";
+const uri = env.MONGODB_URI;
+const dbName = env.MONGODB_DB;
 
 const options = {
   maxPoolSize: 10,
