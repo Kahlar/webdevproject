@@ -1,76 +1,65 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/services/auth';
-import { prisma } from '@/app/services/prisma';
+import { getCollection } from '@/app/services/mongodb';
+import { rateLimit } from '@/app/utils/rate-limit';
 
 export async function POST(
   request: Request,
   { params }: { params: { tipId: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const rateLimitResult = await rateLimit();
+    if (rateLimitResult) return rateLimitResult;
 
     const { tipId } = params;
     const body = await request.json();
-    const { type, content } = body;
+    const { type, content, name } = body;
 
-    if (!type || (type === 'comment' && !content)) {
+    if (!type || !name || (type === 'comment' && !content)) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
+    const likesCollection = await getCollection('likes');
+    const commentsCollection = await getCollection('comments');
+
     if (type === 'like') {
-      const existingLike = await prisma.like.findUnique({
-        where: {
-          tipId_userId: {
-            tipId,
-            userId: session.user.id,
-          },
-        },
+      const existingLike = await likesCollection.findOne({
+        tipId,
+        userName: name,
       });
 
       if (existingLike) {
-        await prisma.like.delete({
-          where: {
-            tipId_userId: {
-              tipId,
-              userId: session.user.id,
-            },
-          },
+        await likesCollection.deleteOne({
+          tipId,
+          userName: name,
         });
         return NextResponse.json({ liked: false });
       }
 
-      await prisma.like.create({
-        data: {
-          tipId,
-          userId: session.user.id,
-        },
+      await likesCollection.insertOne({
+        tipId,
+        userName: name,
+        createdAt: new Date(),
       });
       return NextResponse.json({ liked: true });
     }
 
     if (type === 'comment') {
-      const comment = await prisma.comment.create({
-        data: {
-          content,
-          tipId,
-          authorId: session.user.id,
-        },
-        include: {
-          author: {
-            select: {
-              name: true,
-            },
-          },
-        },
+      const comment = await commentsCollection.insertOne({
+        tipId,
+        userName: name,
+        content,
+        createdAt: new Date(),
       });
-      return NextResponse.json(comment);
+
+      return NextResponse.json({
+        id: comment.insertedId,
+        userName: name,
+        content,
+        createdAt: new Date(),
+      });
     }
 
     return NextResponse.json(
@@ -78,7 +67,7 @@ export async function POST(
       { status: 400 }
     );
   } catch (error) {
-    console.error('Error handling tip interaction:', error);
+    console.error('Error in interactions:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -92,45 +81,23 @@ export async function GET(
 ) {
   try {
     const { tipId } = params;
-    const session = await getServerSession(authOptions);
+    const likesCollection = await getCollection('likes');
+    const commentsCollection = await getCollection('comments');
 
     const [likes, comments] = await Promise.all([
-      prisma.like.count({
-        where: { tipId },
-      }),
-      prisma.comment.findMany({
-        where: { tipId },
-        include: {
-          author: {
-            select: {
-              name: true,
-            },
-          },
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      }),
+      likesCollection.find({ tipId }).toArray(),
+      commentsCollection
+        .find({ tipId })
+        .sort({ createdAt: -1 })
+        .toArray(),
     ]);
 
-    const userLiked = session?.user?.id
-      ? await prisma.like.findUnique({
-          where: {
-            tipId_userId: {
-              tipId,
-              userId: session.user.id,
-            },
-          },
-        })
-      : null;
-
     return NextResponse.json({
-      likes,
+      likes: likes.length,
       comments,
-      userLiked: !!userLiked,
     });
   } catch (error) {
-    console.error('Error fetching tip interactions:', error);
+    console.error('Error fetching interactions:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

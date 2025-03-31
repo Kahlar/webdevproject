@@ -15,6 +15,9 @@ export default function CommunityForum() {
   const [comments, setComments] = useState<Record<string, Comment[]>>({});
   const [newComment, setNewComment] = useState('');
   const [commentAuthor, setCommentAuthor] = useState('');
+  const [newReply, setNewReply] = useState('');
+  const [replyAuthor, setReplyAuthor] = useState('');
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [userReactions, setUserReactions] = useState<Record<string, 'like' | 'dislike' | null>>({});
 
@@ -59,7 +62,7 @@ export default function CommunityForum() {
 
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPost.title.trim() || !newPost.content.trim()) {
+    if (!newPost.title.trim() || !newPost.content.trim() || !newPost.authorName.trim()) {
       setError('Please fill in all required fields');
       return;
     }
@@ -70,7 +73,7 @@ export default function CommunityForum() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...newPost,
-          authorName: newPost.authorName.trim() || 'Anonymous'
+          authorName: newPost.authorName.trim()
         })
       });
 
@@ -86,8 +89,8 @@ export default function CommunityForum() {
   };
 
   const handleCreateComment = async (postId: string) => {
-    if (!newComment.trim()) {
-      setError('Please write a comment');
+    if (!newComment.trim() || !commentAuthor.trim()) {
+      setError('Please fill in all required fields');
       return;
     }
 
@@ -97,7 +100,7 @@ export default function CommunityForum() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           content: newComment,
-          authorName: 'Anonymous',
+          authorName: commentAuthor.trim(),
           postId
         })
       });
@@ -109,10 +112,49 @@ export default function CommunityForum() {
         [postId]: [...(prev[postId] || []), comment]
       }));
       setNewComment('');
+      setCommentAuthor('');
       setError(null);
     } catch (error) {
       console.error('Error:', error);
       setError('Failed to add comment');
+    }
+  };
+
+  const handleCreateReply = async (postId: string, commentId: string) => {
+    if (!newReply.trim() || !replyAuthor.trim()) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/forum/${postId}/comments/${commentId}/replies`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: newReply,
+          authorName: replyAuthor.trim(),
+          postId,
+          commentId
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to add reply');
+      const reply = await response.json();
+      setComments(prev => ({
+        ...prev,
+        [postId]: prev[postId].map(comment =>
+          comment._id === commentId
+            ? { ...comment, replies: [...(comment.replies || []), reply] }
+            : comment
+        )
+      }));
+      setNewReply('');
+      setReplyAuthor('');
+      setReplyingTo(null);
+      setError(null);
+    } catch (error) {
+      console.error('Error:', error);
+      setError('Failed to add reply');
     }
   };
 
@@ -183,6 +225,17 @@ export default function CommunityForum() {
                 required
               />
             </div>
+            <div>
+              <label className="block text-gray-700 mb-2">Your Name:</label>
+              <input
+                type="text"
+                value={newPost.authorName}
+                onChange={e => setNewPost(prev => ({ ...prev, authorName: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
+                placeholder="Enter your name"
+                required
+              />
+            </div>
             <button
               type="submit"
               className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 transition-colors"
@@ -211,17 +264,32 @@ export default function CommunityForum() {
 
               {selectedPost === post._id && (
                 <div className="mt-4">
-                  <div className="mb-4">
-                    <textarea
-                      value={newComment}
-                      onChange={e => setNewComment(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
-                      placeholder="Add a comment..."
-                      rows={3}
-                    />
+                  <div className="mb-4 space-y-4">
+                    <div>
+                      <label className="block text-gray-700 mb-2">Your Name:</label>
+                      <input
+                        type="text"
+                        value={commentAuthor}
+                        onChange={e => setCommentAuthor(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
+                        placeholder="Enter your name"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-700 mb-2">Comment:</label>
+                      <textarea
+                        value={newComment}
+                        onChange={e => setNewComment(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
+                        placeholder="Add a comment..."
+                        rows={3}
+                        required
+                      />
+                    </div>
                     <button
                       onClick={() => handleCreateComment(post._id)}
-                      className="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+                      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
                     >
                       Post Comment
                     </button>
@@ -234,6 +302,54 @@ export default function CommunityForum() {
                         <p className="text-sm text-gray-500 mt-2">
                           Comment by {comment.authorName}
                         </p>
+                        <button
+                          onClick={() => setReplyingTo(replyingTo === comment._id ? null : comment._id)}
+                          className="text-sm text-green-600 hover:text-green-700 mt-2"
+                        >
+                          {replyingTo === comment._id ? 'Cancel Reply' : 'Reply'}
+                        </button>
+
+                        {replyingTo === comment._id && (
+                          <div className="mt-4 space-y-4">
+                            <div>
+                              <label className="block text-gray-700 mb-2">Your Name:</label>
+                              <input
+                                type="text"
+                                value={replyAuthor}
+                                onChange={e => setReplyAuthor(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
+                                placeholder="Enter your name"
+                                required
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-gray-700 mb-2">Reply:</label>
+                              <textarea
+                                value={newReply}
+                                onChange={e => setNewReply(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
+                                placeholder="Write your reply..."
+                                rows={2}
+                                required
+                              />
+                            </div>
+                            <button
+                              onClick={() => handleCreateReply(post._id, comment._id)}
+                              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+                            >
+                              Post Reply
+                            </button>
+                          </div>
+                        )}
+
+                        {comment.replies?.map(reply => (
+                          <div key={reply._id} className="ml-8 mt-4 bg-gray-100 p-3 rounded">
+                            <p className="text-gray-700">{reply.content}</p>
+                            <p className="text-sm text-gray-500 mt-2">
+                              Reply by {reply.authorName}
+                            </p>
+                          </div>
+                        ))}
                       </div>
                     ))}
                   </div>

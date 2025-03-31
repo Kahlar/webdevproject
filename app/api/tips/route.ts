@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/services/auth';
-import { prisma } from '@/app/services/prisma';
+import { getCollection } from '@/app/services/mongodb';
+import { rateLimit } from '@/app/utils/rate-limit';
 
 export async function GET(request: Request) {
   try {
@@ -10,35 +9,42 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
 
-    const where = category ? { category } : {};
+    const tipsCollection = await getCollection('tips');
+    const query = category ? { category } : {};
 
     const [tips, total] = await Promise.all([
-      prisma.tip.findMany({
-        where,
-        include: {
-          author: {
-            select: {
-              name: true,
-            },
-          },
-          _count: {
-            select: {
-              likes: true,
-              comments: true,
-            },
-          },
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-      prisma.tip.count({ where }),
+      tipsCollection
+        .find(query)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .toArray(),
+      tipsCollection.countDocuments(query),
     ]);
 
+    // Get likes and comments counts for each tip
+    const likesCollection = await getCollection('likes');
+    const commentsCollection = await getCollection('comments');
+
+    const tipsWithCounts = await Promise.all(
+      tips.map(async (tip) => {
+        const [likesCount, commentsCount] = await Promise.all([
+          likesCollection.countDocuments({ tipId: tip._id.toString() }),
+          commentsCollection.countDocuments({ tipId: tip._id.toString() }),
+        ]);
+
+        return {
+          ...tip,
+          _count: {
+            likes: likesCount,
+            comments: commentsCount,
+          },
+        };
+      })
+    );
+
     return NextResponse.json({
-      tips,
+      tips: tipsWithCounts,
       total,
       page,
       totalPages: Math.ceil(total / limit),
@@ -54,39 +60,39 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const rateLimitResult = await rateLimit();
+    if (rateLimitResult) return rateLimitResult;
 
     const body = await request.json();
-    const { title, description, category, link } = body;
+    const { title, content, category, name } = body;
 
-    if (!title || !description || !category) {
+    if (!title || !content || !category || !name) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    const tip = await prisma.tip.create({
-      data: {
-        title,
-        description,
-        category,
-        link,
-        authorId: session.user.id,
-      },
-      include: {
-        author: {
-          select: {
-            name: true,
-          },
-        },
-      },
+    const tipsCollection = await getCollection('tips');
+
+    const tip = await tipsCollection.insertOne({
+      title,
+      content,
+      category,
+      authorName: name,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
-    return NextResponse.json(tip);
+    return NextResponse.json({
+      id: tip.insertedId,
+      title,
+      content,
+      category,
+      authorName: name,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
   } catch (error) {
     console.error('Error creating tip:', error);
     return NextResponse.json(
