@@ -3,7 +3,7 @@ import { z } from 'zod';
 // Define the schema for environment variables
 const envSchema = z.object({
   // MongoDB Configuration
-  MONGODB_URI: z.string().min(1, 'MongoDB URI is required'),
+  MONGODB_URI: z.string().min(1, 'MongoDB URI is required').optional(),
   MONGODB_DB: z.string().default('greensphere'),
 });
 
@@ -26,5 +26,8 @@ export function validateEnv() {
   }
 }
 
-// Export validated environment variables
-export const env = validateEnv(); 
+// Temporary empty environment validation for deployment
+export const env = {
+  MONGODB_URI: "mongodb+srv://aishiktokdarxyz:ABCDE@reactproj.tdyf5.mongodb.net/?retryWrites=true&w=majority&appName=ReactProj",
+  MONGODB_DB: "greensphere"
+}; 

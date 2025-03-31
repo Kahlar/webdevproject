@@ -1,10 +1,9 @@
 import { MongoClient } from 'mongodb';
 
-if (!process.env.MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
-}
+// Temporary hardcoded connection for deployment
+const uri = "mongodb+srv://aishiktokdarxyz:ABCDE@reactproj.tdyf5.mongodb.net/?retryWrites=true&w=majority&appName=ReactProj";
+const dbName = "greensphere";
 
-const uri = process.env.MONGODB_URI;
 const options = {
   maxPoolSize: 10,
   serverSelectionTimeoutMS: 5000,
@@ -101,7 +100,7 @@ export async function checkDatabaseHealth(): Promise<boolean> {
 export async function getDb() {
   try {
     const client = await clientPromise;
-    return client.db(process.env.MONGODB_DB || 'greensphere');
+    return client.db(dbName);
   } catch (error) {
     console.error('Error getting database instance:', error);
     throw error;
