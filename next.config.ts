@@ -1,15 +1,29 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   images: {
-    domains: ['images.unsplash.com'], // Add any image domains you're using
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
   },
-  // Ensure MongoDB connection works in production
+  // Server Actions are now stable in Next.js 14
   experimental: {
-    serverActions: true,
-  }
+    serverActions: true
+  },
+  // Fix module resolution
+  webpack: (config: any) => {
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
+    };
+    return config;
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
