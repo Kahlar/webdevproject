@@ -1,5 +1,5 @@
 // pages/api/leaderboard.ts
-import { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import clientPromise from '../../lib/mongodb';
 import { config } from '../../app/config';
 
@@ -10,19 +10,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const db = client.db(config.mongodb.dbName);
       const usersCollection = db.collection('users');
 
-      // Retrieve top users from the database based on points
-      const leaderboardData = await usersCollection.find().sort({ points: -1 }).limit(10).toArray();
-
-      // Transform data to include only name and points
-      const leaderboard = leaderboardData.map(user => ({
-        name: user.name || "Anonymous", // Use a default name if name is not available
-        points: user.points || 0, // Use 0 if points is not available
-      }));
+      // Get top 10 users by points
+      const leaderboard = await usersCollection
+        .find({})
+        .sort({ points: -1 })
+        .limit(10)
+        .toArray();
 
       res.status(200).json(leaderboard);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      res.status(500).json({ message: 'Failed to retrieve leaderboard data', error: error.message });
+      res.status(500).json({ message: 'Failed to retrieve leaderboard data', error: error?.message || 'Unknown error' });
     }
   } else {
     res.status(405).json({ message: 'Method Not Allowed' });
