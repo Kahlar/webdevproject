@@ -1,12 +1,13 @@
 // pages/api/points.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import clientPromise from '../../lib/mongodb';
+import { config } from '../../app/config';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     try {
       const client = await clientPromise;
-      const db = client.db(process.env.MONGODB_URI);
+      const db = client.db(config.mongodb.dbName);
       const usersCollection = db.collection('users');
 
       const { userId } = req.query;

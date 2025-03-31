@@ -1,12 +1,13 @@
 // pages/api/actions.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import clientPromise from '../../lib/mongodb';
+import { config } from '../../app/config';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     try {
       const client = await clientPromise;
-      const db = client.db(process.env.MONGODB_URI);
+      const db = client.db(config.mongodb.dbName);
       const actionsCollection = db.collection('actions');
       const usersCollection = db.collection('users');
 

@@ -1,8 +1,8 @@
 import { MongoClient } from 'mongodb';
+import { config } from '../config';
 
-// Hardcoded values for deployment
-const uri = "mongodb+srv://aishiktokdarxyz:ABCDE@reactproj.tdyf5.mongodb.net/?retryWrites=true&w=majority&appName=ReactProj";
-const dbName = "greensphere";
+const uri = config.mongodb.uri;
+const dbName = config.mongodb.dbName;
 
 const options = {
   maxPoolSize: 10,
@@ -55,21 +55,15 @@ async function connectWithRetry(): Promise<MongoClient> {
   }
 }
 
-if (process.env.NODE_ENV === 'development') {
-  // In development mode, use a global variable so that the value
-  // is preserved across module reloads caused by HMR (Hot Module Replacement).
-  let globalWithMongo = global as typeof globalThis & {
-    _mongoClientPromise?: Promise<MongoClient>;
-  };
+// Use a global variable to preserve the connection across module reloads
+let globalWithMongo = global as typeof globalThis & {
+  _mongoClientPromise?: Promise<MongoClient>;
+};
 
-  if (!globalWithMongo._mongoClientPromise) {
-    globalWithMongo._mongoClientPromise = connectWithRetry();
-  }
-  clientPromise = globalWithMongo._mongoClientPromise!;
-} else {
-  // In production mode, it's best to not use a global variable.
-  clientPromise = connectWithRetry();
+if (!globalWithMongo._mongoClientPromise) {
+  globalWithMongo._mongoClientPromise = connectWithRetry();
 }
+clientPromise = globalWithMongo._mongoClientPromise!;
 
 // Handle process termination
 process.on('SIGINT', async () => {
