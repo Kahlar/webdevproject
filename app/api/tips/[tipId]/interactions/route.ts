@@ -1,75 +1,48 @@
 import { NextResponse } from 'next/server';
 import { getCollection } from '@/app/services/mongodb';
-import { rateLimit } from '@/app/utils/rate-limit';
+import { ObjectId } from 'mongodb';
 
 export async function POST(
   request: Request,
   { params }: { params: { tipId: string } }
 ) {
   try {
-    const rateLimitResult = await rateLimit();
-    if (rateLimitResult) return rateLimitResult;
+    const { type } = await request.json();
 
-    const { tipId } = params;
-    const body = await request.json();
-    const { type, content, name } = body;
-
-    if (!type || !name || (type === 'comment' && !content)) {
+    if (!type || !['like', 'dislike'].includes(type)) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Invalid interaction type' },
         { status: 400 }
       );
     }
 
     const likesCollection = await getCollection('likes');
-    const commentsCollection = await getCollection('comments');
+    const tipId = params.tipId;
 
-    if (type === 'like') {
-      const existingLike = await likesCollection.findOne({
-        tipId,
-        userName: name,
-      });
+    // Check if user has already liked/disliked
+    const existingInteraction = await likesCollection.findOne({
+      tipId,
+      type,
+    });
 
-      if (existingLike) {
-        await likesCollection.deleteOne({
-          tipId,
-          userName: name,
-        });
-        return NextResponse.json({ liked: false });
-      }
-
-      await likesCollection.insertOne({
-        tipId,
-        userName: name,
-        createdAt: new Date(),
-      });
-      return NextResponse.json({ liked: true });
+    if (existingInteraction) {
+      // Remove the interaction if it exists
+      await likesCollection.deleteOne({ _id: existingInteraction._id });
+      return NextResponse.json({ [type]: false });
     }
 
-    if (type === 'comment') {
-      const comment = await commentsCollection.insertOne({
-        tipId,
-        userName: name,
-        content,
-        createdAt: new Date(),
-      });
+    // Add new interaction
+    await likesCollection.insertOne({
+      tipId,
+      type,
+      createdAt: new Date(),
+    });
 
-      return NextResponse.json({
-        id: comment.insertedId,
-        userName: name,
-        content,
-        createdAt: new Date(),
-      });
-    }
-
-    return NextResponse.json(
-      { error: 'Invalid interaction type' },
-      { status: 400 }
-    );
+    return NextResponse.json({ [type]: true });
   } catch (error) {
-    console.error('Error in interactions:', error);
+    console.error('Error handling tip interaction:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to process interaction' },
       { status: 500 }
     );
   }

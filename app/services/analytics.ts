@@ -1,4 +1,4 @@
-type EventType = 'page_view' | 'button_click' | 'form_submit' | 'error' | 'performance';
+type EventType = 'page_view' | 'button_click' | 'form_submit' | 'error' | 'performance' | 'category_click';
 
 interface AnalyticsEvent {
   type: EventType;
@@ -104,6 +104,10 @@ class AnalyticsService {
 
   trackError(errorName: string, properties?: Record<string, any>) {
     this.trackEvent('error', errorName, properties);
+  }
+
+  trackCategoryClick(categoryId: string) {
+    this.trackEvent('category_click', 'category_selected', { category: categoryId });
   }
 }
 

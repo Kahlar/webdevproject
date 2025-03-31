@@ -1,31 +1,27 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/services/auth';
 import { ForumService } from '@/app/services/forum';
 
+// Handle post likes and dislikes
 export async function POST(
   request: Request,
   { params }: { params: { postId: string } }
 ) {
   try {
-    const body = await request.json();
-    const { type } = body;
-
+    const { type } = await request.json();
     if (!type || !['like', 'dislike'].includes(type)) {
-      return NextResponse.json(
-        { error: 'Invalid interaction type' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid interaction type' }, { status: 400 });
     }
 
-    const result = await ForumService.addReaction(params.postId, 'anonymous', type);
-    return NextResponse.json(result);
+    const success = await ForumService.addReaction(params.postId, type);
+    
+    if (!success) {
+      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ [type]: true });
   } catch (error) {
     console.error('Error handling interaction:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to process interaction' }, { status: 500 });
   }
 }
 
@@ -34,16 +30,7 @@ export async function GET(
   { params }: { params: { postId: string } }
 ) {
   try {
-    const { postId } = params;
-    const session = await getServerSession(authOptions);
-
-    const [post, comments, userReaction] = await Promise.all([
-      ForumService.getPostById(postId),
-      ForumService.getComments(postId),
-      session?.user?.id
-        ? ForumService.getUserReaction(postId, session.user.id)
-        : null
-    ]);
+    const post = await ForumService.getPostById(params.postId);
 
     if (!post) {
       return NextResponse.json(
@@ -53,14 +40,13 @@ export async function GET(
     }
 
     return NextResponse.json({
-      post,
-      comments,
-      userReaction
+      likes: post.likes || 0,
+      dislikes: post.dislikes || 0
     });
   } catch (error) {
-    console.error('Error fetching forum post details:', error);
+    console.error('Error fetching post interactions:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to fetch interactions' },
       { status: 500 }
     );
   }

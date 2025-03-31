@@ -5,8 +5,33 @@ import { Car, Home, Apple, } from "lucide-react";
 import { Button } from "@/app/components/ui/button"; // Importing Button from Shadcn UI
 import { Input } from "@/app/components/ui/input"; // Importing Input from Shadcn UI
 
+interface FormData {
+    carMiles: string;
+    publicTransport: string;
+    flights: string;
+    electricityBill: string;
+    gasUsage: string;
+    renewable: "yes" | "no";
+    dietType: "vegan" | "vegetarian" | "mixed" | "meatHeavy";
+    meatFrequency: string;
+    localFood: string;
+}
+
+interface Result {
+    annualFootprint: string;
+    comparison: string;
+    tips: string[];
+}
+
+interface ProgressStepProps {
+    icon: React.ReactNode;
+    title: string;
+    active: boolean;
+    onClick: () => void;
+}
+
 const CarbonCalculator = () => {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<FormData>({
         // Travel
         carMiles: "",
         publicTransport: "",
@@ -21,10 +46,12 @@ const CarbonCalculator = () => {
         localFood: "sometimes",
     });
 
-    const [result, setResult] = useState(null);
+    const [result, setResult] = useState<Result | null>(null);
     const [activeSection, setActiveSection] = useState("travel");
 
-    const handleInputChange = (e) => {
+    const handleInputChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    ) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
@@ -63,9 +90,9 @@ const CarbonCalculator = () => {
         });
     };
 
-    const generateTips = (data) => {
-        const tips = [];
-        if (data.carMiles > 100) {
+    const generateTips = (data: FormData): string[] => {
+        const tips: string[] = [];
+        if (Number(data.carMiles) > 100) {
             tips.push("Consider carpooling or using public transport to reduce your travel emissions.");
         }
         if (data.renewable === "no") {
@@ -340,17 +367,17 @@ const CarbonCalculator = () => {
     );
 };
 
-const ProgressStep = ({ icon, title, active, onClick }) => (
+const ProgressStep: React.FC<ProgressStepProps> = ({ icon, title, active, onClick }) => (
     <button
         onClick={onClick}
-        className={`flex items-center space-x-2 ${
+        className={`flex flex-col items-center space-y-2 p-4 rounded-xl transition-all duration-200 ${
             active
-                ? "text-green-700 dark:text-green-300"
-                : "text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-300"
-        } transition-colors duration-200`}
+                ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
+                : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+        }`}
     >
-        <span className="w-6 h-6">{icon}</span>
-        <span className="font-medium">{title}</span>
+        {icon}
+        <span className="text-sm font-medium">{title}</span>
     </button>
 );
 

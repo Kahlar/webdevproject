@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { getCollection } from '@/app/services/mongodb';
-import { rateLimit } from '@/app/utils/rate-limit';
 
 export async function GET(request: Request) {
   try {
@@ -52,7 +51,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error('Error fetching tips:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to fetch tips' },
       { status: 500 }
     );
   }
@@ -60,13 +59,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const rateLimitResult = await rateLimit();
-    if (rateLimitResult) return rateLimitResult;
+    const { title, content, category, authorName } = await request.json();
 
-    const body = await request.json();
-    const { title, content, category, name } = body;
-
-    if (!title || !content || !category || !name) {
+    if (!title || !content || !category || !authorName) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -74,29 +69,21 @@ export async function POST(request: Request) {
     }
 
     const tipsCollection = await getCollection('tips');
-
-    const tip = await tipsCollection.insertOne({
+    const tip = {
       title,
       content,
       category,
-      authorName: name,
+      authorName,
       createdAt: new Date(),
       updatedAt: new Date(),
-    });
+    };
 
-    return NextResponse.json({
-      id: tip.insertedId,
-      title,
-      content,
-      category,
-      authorName: name,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    const result = await tipsCollection.insertOne(tip);
+    return NextResponse.json({ ...tip, _id: result.insertedId });
   } catch (error) {
     console.error('Error creating tip:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to create tip' },
       { status: 500 }
     );
   }

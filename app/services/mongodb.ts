@@ -4,56 +4,8 @@ import { config } from '../config';
 const uri = config.mongodb.uri;
 const dbName = config.mongodb.dbName;
 
-const options = {
-  maxPoolSize: 10,
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
-  connectTimeoutMS: 10000,
-  retryWrites: true,
-  retryReads: true,
-};
-
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
-let isConnecting = false;
-let retryCount = 0;
-const MAX_RETRIES = 5;
-const RETRY_INTERVAL = 60000; // 1 minute
-
-async function connectWithRetry(): Promise<MongoClient> {
-  if (isConnecting) {
-    return clientPromise;
-  }
-
-  isConnecting = true;
-  client = new MongoClient(uri, options);
-
-  try {
-    const connectedClient = await client.connect();
-    console.log('✅ MongoDB Connected Successfully');
-    console.log(`📁 Connected to database: ${connectedClient.db().databaseName}`);
-    retryCount = 0;
-    isConnecting = false;
-    return connectedClient;
-  } catch (error) {
-    console.error('❌ MongoDB Connection Error:', error);
-    isConnecting = false;
-
-    if (retryCount < MAX_RETRIES) {
-      retryCount++;
-      console.log(`🔄 Retrying connection (${retryCount}/${MAX_RETRIES}) in ${RETRY_INTERVAL/1000} seconds...`);
-      
-      // Wait for the retry interval
-      await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL));
-      
-      // Try connecting again
-      return connectWithRetry();
-    } else {
-      console.error('❌ Max retry attempts reached. Please check your MongoDB connection.');
-      throw new Error('Failed to connect to MongoDB after maximum retry attempts');
-    }
-  }
-}
 
 // Use a global variable to preserve the connection across module reloads
 let globalWithMongo = global as typeof globalThis & {
@@ -61,22 +13,19 @@ let globalWithMongo = global as typeof globalThis & {
 };
 
 if (!globalWithMongo._mongoClientPromise) {
-  globalWithMongo._mongoClientPromise = connectWithRetry();
+  client = new MongoClient(uri);
+  globalWithMongo._mongoClientPromise = client.connect();
 }
-clientPromise = globalWithMongo._mongoClientPromise!;
+clientPromise = globalWithMongo._mongoClientPromise;
 
-// Handle process termination
-process.on('SIGINT', async () => {
-  try {
-    const client = await clientPromise;
-    await client.close();
-    console.log('MongoDB connection closed through app termination');
-    process.exit(0);
-  } catch (error) {
-    console.error('Error closing MongoDB connection:', error);
-    process.exit(1);
-  }
-});
+export async function connectToDatabase() {
+  const client = await clientPromise;
+  const db = client.db(dbName);
+  return { client, db };
+}
+
+// Export a module-scoped MongoClient promise
+export default clientPromise;
 
 // Health check function
 export async function checkDatabaseHealth(): Promise<boolean> {
@@ -114,5 +63,15 @@ export async function getCollection(name: string) {
   }
 }
 
-// Export the connection promise for external use
-export default clientPromise; 
+// Handle process termination
+process.on('SIGINT', async () => {
+  try {
+    const client = await clientPromise;
+    await client.close();
+    console.log('MongoDB connection closed through app termination');
+    process.exit(0);
+  } catch (error) {
+    console.error('Error closing MongoDB connection:', error);
+    process.exit(1);
+  }
+}); 

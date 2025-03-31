@@ -2,12 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSession } from 'next-auth/react';
 import { formatDistanceToNow } from 'date-fns';
 import { Post, Comment } from '@/types/forum';
 
 export default function CommunityForum() {
-  const { data: session } = useSession();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [newPost, setNewPost] = useState({ title: '', content: '', authorName: '' });
@@ -199,165 +197,179 @@ export default function CommunityForum() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-4xl mx-auto p-4">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Start a Discussion</h2>
-          <form onSubmit={handleCreatePost} className="space-y-4">
-            <div>
-              <label className="block text-gray-700 mb-2">Title:</label>
-              <input
-                type="text"
-                value={newPost.title}
-                onChange={e => setNewPost(prev => ({ ...prev, title: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
-                placeholder="Enter your title"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Content:</label>
-              <textarea
-                value={newPost.content}
-                onChange={e => setNewPost(prev => ({ ...prev, content: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500 min-h-[100px]"
-                placeholder="Write your post content here..."
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Your Name:</label>
-              <input
-                type="text"
-                value={newPost.authorName}
-                onChange={e => setNewPost(prev => ({ ...prev, authorName: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
-                placeholder="Enter your name"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 transition-colors"
-            >
-              Create Post
-            </button>
-          </form>
+    <div className="max-w-4xl mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-8">Community Forum</h1>
+      
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
         </div>
+      )}
 
-        <div className="space-y-6">
-          {posts.map(post => (
-            <div key={post._id} className="border-b pb-6">
-              <h3 className="text-xl font-bold mb-2">{post.title}</h3>
-              <p className="text-gray-600 mb-4">{post.content}</p>
-              <div className="flex justify-between items-center text-sm text-gray-500">
-                <p>Posted by {post.authorName}</p>
-                <div className="flex space-x-4">
-                  <button
-                    onClick={() => setSelectedPost(selectedPost === post._id ? null : post._id)}
-                    className="text-green-600 hover:text-green-700"
-                  >
-                    {selectedPost === post._id ? 'Hide Comments' : 'Show Comments'}
-                  </button>
-                </div>
-              </div>
+      <form onSubmit={handleCreatePost} className="mb-8 bg-white p-6 rounded-lg shadow">
+        <h2 className="text-xl font-semibold mb-4">Create New Post</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Title</label>
+            <input
+              type="text"
+              value={newPost.title}
+              onChange={(e) => setNewPost(prev => ({ ...prev, title: e.target.value }))}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Content</label>
+            <textarea
+              value={newPost.content}
+              onChange={(e) => setNewPost(prev => ({ ...prev, content: e.target.value }))}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+              rows={4}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Your Name</label>
+            <input
+              type="text"
+              value={newPost.authorName}
+              onChange={(e) => setNewPost(prev => ({ ...prev, authorName: e.target.value }))}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+          >
+            Create Post
+          </button>
+        </div>
+      </form>
 
-              {selectedPost === post._id && (
-                <div className="mt-4">
-                  <div className="mb-4 space-y-4">
-                    <div>
-                      <label className="block text-gray-700 mb-2">Your Name:</label>
-                      <input
-                        type="text"
-                        value={commentAuthor}
-                        onChange={e => setCommentAuthor(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
-                        placeholder="Enter your name"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-gray-700 mb-2">Comment:</label>
-                      <textarea
-                        value={newComment}
-                        onChange={e => setNewComment(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
-                        placeholder="Add a comment..."
-                        rows={3}
-                        required
-                      />
-                    </div>
-                    <button
-                      onClick={() => handleCreateComment(post._id)}
-                      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
-                    >
-                      Post Comment
-                    </button>
+      <div className="space-y-6">
+        {posts.map((post) => (
+          <div key={post._id} className="bg-white p-6 rounded-lg shadow">
+            <h2 className="text-xl font-semibold mb-2">{post.title}</h2>
+            <p className="text-gray-600 mb-4">{post.content}</p>
+            <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+              <span>Posted by {post.authorName}</span>
+              <span>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}</span>
+            </div>
+            
+            <div className="flex items-center space-x-4 mb-4">
+              <button
+                onClick={() => handleVote(post._id, 'like')}
+                className={`flex items-center space-x-1 ${
+                  userReactions[post._id] === 'like' ? 'text-green-600' : 'text-gray-500'
+                }`}
+              >
+                <span>👍</span>
+                <span>{post.likes}</span>
+              </button>
+              <button
+                onClick={() => handleVote(post._id, 'dislike')}
+                className={`flex items-center space-x-1 ${
+                  userReactions[post._id] === 'dislike' ? 'text-red-600' : 'text-gray-500'
+                }`}
+              >
+                <span>👎</span>
+                <span>{post.dislikes}</span>
+              </button>
+            </div>
+
+            <div className="mt-4">
+              <h3 className="text-lg font-semibold mb-2">Comments</h3>
+              {comments[post._id]?.map((comment) => (
+                <div key={comment._id} className="ml-4 mb-4">
+                  <p className="text-gray-700">{comment.content}</p>
+                  <div className="flex items-center justify-between text-sm text-gray-500 mt-1">
+                    <span>By {comment.authorName}</span>
+                    <span>{formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}</span>
                   </div>
-
-                  <div className="space-y-4">
-                    {comments[post._id]?.map(comment => (
-                      <div key={comment._id} className="bg-gray-50 p-4 rounded">
-                        <p className="text-gray-700">{comment.content}</p>
-                        <p className="text-sm text-gray-500 mt-2">
-                          Comment by {comment.authorName}
-                        </p>
-                        <button
-                          onClick={() => setReplyingTo(replyingTo === comment._id ? null : comment._id)}
-                          className="text-sm text-green-600 hover:text-green-700 mt-2"
-                        >
-                          {replyingTo === comment._id ? 'Cancel Reply' : 'Reply'}
-                        </button>
-
-                        {replyingTo === comment._id && (
-                          <div className="mt-4 space-y-4">
-                            <div>
-                              <label className="block text-gray-700 mb-2">Your Name:</label>
-                              <input
-                                type="text"
-                                value={replyAuthor}
-                                onChange={e => setReplyAuthor(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
-                                placeholder="Enter your name"
-                                required
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-gray-700 mb-2">Reply:</label>
-                              <textarea
-                                value={newReply}
-                                onChange={e => setNewReply(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
-                                placeholder="Write your reply..."
-                                rows={2}
-                                required
-                              />
-                            </div>
-                            <button
-                              onClick={() => handleCreateReply(post._id, comment._id)}
-                              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
-                            >
-                              Post Reply
-                            </button>
-                          </div>
-                        )}
-
-                        {comment.replies?.map(reply => (
-                          <div key={reply._id} className="ml-8 mt-4 bg-gray-100 p-3 rounded">
-                            <p className="text-gray-700">{reply.content}</p>
-                            <p className="text-sm text-gray-500 mt-2">
-                              Reply by {reply.authorName}
-                            </p>
-                          </div>
-                        ))}
+                  
+                  {comment.replies?.map((reply) => (
+                    <div key={reply._id} className="ml-8 mt-2">
+                      <p className="text-gray-700">{reply.content}</p>
+                      <div className="flex items-center justify-between text-sm text-gray-500 mt-1">
+                        <span>By {reply.authorName}</span>
+                        <span>{formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true })}</span>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
+
+                  <button
+                    onClick={() => setReplyingTo(comment._id)}
+                    className="text-sm text-green-600 hover:text-green-700 mt-2"
+                  >
+                    Reply
+                  </button>
+
+                  {replyingTo === comment._id && (
+                    <div className="mt-2">
+                      <textarea
+                        value={newReply}
+                        onChange={(e) => setNewReply(e.target.value)}
+                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                        rows={2}
+                        placeholder="Write a reply..."
+                      />
+                      <div className="mt-2">
+                        <input
+                          type="text"
+                          value={replyAuthor}
+                          onChange={(e) => setReplyAuthor(e.target.value)}
+                          className="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                          placeholder="Your name"
+                        />
+                      </div>
+                      <div className="flex space-x-2 mt-2">
+                        <button
+                          onClick={() => handleCreateReply(post._id, comment._id)}
+                          className="bg-green-600 text-white py-1 px-3 rounded-md hover:bg-green-700"
+                        >
+                          Submit Reply
+                        </button>
+                        <button
+                          onClick={() => setReplyingTo(null)}
+                          className="bg-gray-200 text-gray-700 py-1 px-3 rounded-md hover:bg-gray-300"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              ))}
+
+              <div className="mt-4">
+                <textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                  rows={3}
+                  placeholder="Write a comment..."
+                />
+                <div className="mt-2">
+                  <input
+                    type="text"
+                    value={commentAuthor}
+                    onChange={(e) => setCommentAuthor(e.target.value)}
+                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                    placeholder="Your name"
+                  />
+                </div>
+                <button
+                  onClick={() => handleCreateComment(post._id)}
+                  className="mt-2 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700"
+                >
+                  Add Comment
+                </button>
+              </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   );

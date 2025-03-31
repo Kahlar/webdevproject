@@ -1,36 +1,32 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/services/auth';
-import { CarbonService } from '@/app/services/carbon';
+import { connectToDatabase } from '@/app/services/mongodb';
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const { userId, carbonFootprint, date } = await request.json();
 
-    const body = await request.json();
-    const { category, value, unit } = body;
-
-    if (!category || !value || !unit) {
+    if (!carbonFootprint || !date) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    await CarbonService.recordFootprint(session.user.id, {
-      category,
-      value,
-      unit,
-    });
+    const { db } = await connectToDatabase();
+    const record = {
+      userId: userId || 'anonymous',
+      carbonFootprint,
+      date: new Date(date),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
 
-    return NextResponse.json({ success: true });
+    const result = await db.collection('carbonFootprints').insertOne(record);
+    return NextResponse.json({ ...record, _id: result.insertedId });
   } catch (error) {
     console.error('Error recording carbon footprint:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to record carbon footprint' },
       { status: 500 }
     );
   }
@@ -38,22 +34,31 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId') || 'anonymous';
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+
+    const { db } = await connectToDatabase();
+    const query: any = { userId };
+
+    if (startDate && endDate) {
+      query.date = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      };
     }
 
-    const footprint = await CarbonService.getUserFootprint(session.user.id);
-    const recommendations = await CarbonService.getRecommendations(session.user.id);
+    const records = await db.collection('carbonFootprints')
+      .find(query)
+      .sort({ date: -1 })
+      .toArray();
 
-    return NextResponse.json({
-      footprint,
-      recommendations,
-    });
+    return NextResponse.json(records);
   } catch (error) {
     console.error('Error fetching carbon footprint:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to fetch carbon footprint' },
       { status: 500 }
     );
   }

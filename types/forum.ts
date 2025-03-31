@@ -3,19 +3,28 @@ export interface Post {
   title: string;
   content: string;
   authorName: string;
-  authorId: string;
   likes: number;
   dislikes: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Comment {
   _id: string;
-  postId: string;
   content: string;
   authorName: string;
-  authorId: string;
-  createdAt: string;
-  updatedAt: string;
+  postId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  replies?: Reply[];
+}
+
+export interface Reply {
+  _id: string;
+  content: string;
+  authorName: string;
+  postId: string;
+  commentId: string;
+  createdAt: Date;
+  updatedAt: Date;
 } 

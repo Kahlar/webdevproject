@@ -122,13 +122,11 @@ const EcoTips: React.FC<EcoTipsProps> = ({ initialCategory = 'transportation' })
 
   const handleCategoryClick = (categoryId: string) => {
     setSelectedCategory(categoryId);
-    analytics.trackEvent('category_click', {
-      category: categoryId,
-    });
+    analytics.trackCategoryClick(categoryId);
   };
 
   const handleLinkClick = (link: string) => {
-    analytics.trackEvent('link_click', {
+    analytics.trackButtonClick('link_clicked', {
       url: link,
     });
   };
