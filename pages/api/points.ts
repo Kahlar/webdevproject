@@ -12,17 +12,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const { userId } = req.query;
 
-      // Retrieve user from the database
-      const user = await usersCollection.findOne({ userId: userId });
-
-      if (user) {
-        res.status(200).json({ points: user.points || 0 }); // Return 0 if points is undefined
-      } else {
-        res.status(404).json({ message: 'User not found' });
+      if (!userId) {
+        return res.status(400).json({ message: 'User ID is required' });
       }
-    } catch (error) {
+
+      // Get user's total points
+      const user = await usersCollection.findOne({ userId: userId });
+      const totalPoints = user?.points || 0;
+
+      res.status(200).json({ points: totalPoints });
+    } catch (error: any) {
       console.error(error);
-      res.status(500).json({ message: 'Failed to retrieve user points', error: error.message });
+      res.status(500).json({ message: 'Failed to retrieve user points', error: error?.message || 'Unknown error' });
     }
   } else {
     res.status(405).json({ message: 'Method Not Allowed' });
