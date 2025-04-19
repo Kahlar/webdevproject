@@ -48,20 +48,20 @@ const Tracker = () => {
       </div>
 
       {/* Action Logging Form */}
-      <div className="mb-8 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <div className="mb-8 bg-gradient-to-r from-green-100 via-green-200 to-lime-200 rounded-lg shadow-md p-6">
         <h2 className="text-xl font-semibold mb-3">Log Your Actions</h2>
         <ActionLogForm userId={userId} onActionLogged={handleActionLogged} />
       </div>
 
       {/* Points and Badge */}
-      <div className="mb-8 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <div className="mb-8 bg-gradient-to-r from-green-100 via-green-200 to-lime-200 rounded-lg shadow-md p-6">
         <h2 className="text-xl font-semibold mb-3">Your Stats</h2>
         <p>Total Points: {totalPoints}</p>
         <p>Badge: {badge}</p>
       </div>
 
       {/* Progress Visualization */}
-      <div className="mb-8 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <div className="mb-8 bg-gradient-to-r from-green-100 via-green-200 to-lime-200 rounded-lg shadow-md p-6">
         <h2 className="text-xl font-semibold mb-3">Weekly Progress</h2>
         <ProgressChart chartData={chartData} />
         {/* Simple Progress Bar */}

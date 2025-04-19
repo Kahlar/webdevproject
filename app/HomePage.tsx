@@ -243,7 +243,7 @@ const HomePage = () => {
               <p className="text-lg font-bold text-white dark:text-gray-300 mb-8">
                 Join our community of eco-warriors and start your journey towards a sustainable lifestyle.
               </p>
-              <Link href="/carbon-calculator"> 
+              <Link href="/signup"> 
               <Button 
                 className="!bg-white hover:!bg-green-700 dark:!bg-green-700 dark:hover:!bg-green-800 !text-green-800 transition-all inline-flex items-center"
                 >
