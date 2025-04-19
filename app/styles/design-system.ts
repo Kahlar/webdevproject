@@ -5,23 +5,37 @@ export const colors = {
     200: '#bbf7d0',
     300: '#86efac',
     400: '#4ade80',
-    500: '#22c55e',
+    500: '#22c55e',  // Green base
     600: '#16a34a',
     700: '#15803d',
     800: '#166534',
     900: '#14532d',
   },
   secondary: {
-    50: '#eff6ff',
-    100: '#dbeafe',
-    200: '#bfdbfe',
-    300: '#93c5fd',
-    400: '#60a5fa',
-    500: '#3b82f6',
-    600: '#2563eb',
-    700: '#1d4ed8',
-    800: '#1e40af',
-    900: '#1e3a8a',
+    50: '#ecfdf5',
+    100: '#d1fae5',
+    200: '#a7f3d0',
+    300: '#6ee7b7',
+    400: '#34d399', // Minty fresh
+    500: '#10b981',
+    600: '#059669',
+    700: '#047857',
+    800: '#065f46',
+    900: '#064e3b',
+  },
+  accent: {
+    100: '#fff7ed',
+    200: '#ffedd5',
+    300: '#fed7aa',  // Soft orange/ochre
+    400: '#fdba74',
+    500: '#fb923c',
+  },
+  sky: {
+    100: '#e0f2fe',
+    200: '#bae6fd',
+    300: '#7dd3fc',
+    400: '#38bdf8',
+    500: '#0ea5e9', // Light sky
   },
   neutral: {
     50: '#f8fafc',
@@ -34,95 +48,54 @@ export const colors = {
     700: '#334155',
     800: '#1e293b',
     900: '#0f172a',
-  },
-};
-
-export const spacing = {
-  xs: '0.25rem',
-  sm: '0.5rem',
-  md: '1rem',
-  lg: '1.5rem',
-  xl: '2rem',
-  '2xl': '3rem',
-  '3xl': '4rem',
-};
-
+  }
+}
 export const typography = {
   fontFamily: {
-    sans: ['Inter', 'system-ui', 'sans-serif'],
-    mono: ['Fira Code', 'monospace'],
+    sans: ['"Poppins"', 'system-ui', 'sans-serif'],
+    cute: ['"Comic Neue"', '"Baloo 2"', 'cursive'], // Optional playful style
   },
   fontSize: {
     xs: '0.75rem',
     sm: '0.875rem',
     base: '1rem',
-    lg: '1.125rem',
-    xl: '1.25rem',
-    '2xl': '1.5rem',
-    '3xl': '1.875rem',
-    '4xl': '2.25rem',
+    md: '1.05rem',
+    lg: '1.25rem',
+    xl: '1.5rem',
+    '2xl': '1.875rem',
+    '3xl': '2.25rem',
+    '4xl': '3rem',
   },
   fontWeight: {
+    light: '300',
     normal: '400',
     medium: '500',
     semibold: '600',
     bold: '700',
   },
-};
-
+}
 export const shadows = {
-  sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-  DEFAULT: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
-  md: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-  lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-  xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+  sm: '0 1px 3px rgba(0, 0, 0, 0.05)',
+  md: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  lg: '0 10px 20px rgba(0, 0, 0, 0.08)',
+  xl: '0 20px 25px rgba(0, 0, 0, 0.1)',
+  glow: '0 0 15px rgba(34, 197, 94, 0.3)', // green glow
 };
-
 export const borderRadius = {
-  none: '0',
-  sm: '0.125rem',
-  DEFAULT: '0.25rem',
-  md: '0.375rem',
-  lg: '0.5rem',
-  xl: '0.75rem',
-  '2xl': '1rem',
-  '3xl': '1.5rem',
+  sm: '6px',
+  md: '10px',
+  lg: '16px',
+  xl: '24px',
   full: '9999px',
 };
-
 export const transitions = {
   duration: {
-    75: '75ms',
-    100: '100ms',
-    150: '150ms',
-    200: '200ms',
-    300: '300ms',
-    500: '500ms',
-    700: '700ms',
-    1000: '1000ms',
+    short: '150ms',
+    normal: '300ms',
+    slow: '500ms',
   },
-  timing: {
-    linear: 'linear',
-    in: 'cubic-bezier(0.4, 0, 1, 1)',
-    out: 'cubic-bezier(0, 0, 0.2, 1)',
-    inOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
+  easing: {
+    easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    springy: 'cubic-bezier(0.2, 1, 0.22, 1)',
   },
 };
-
-export const breakpoints = {
-  sm: '640px',
-  md: '768px',
-  lg: '1024px',
-  xl: '1280px',
-  '2xl': '1536px',
-};
-
-export const zIndex = {
-  0: '0',
-  10: '10',
-  20: '20',
-  30: '30',
-  40: '40',
-  50: '50',
-  auto: 'auto',
-}; 

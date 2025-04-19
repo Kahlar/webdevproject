@@ -140,32 +140,40 @@ const HomePage = () => {
 
         {/* Main Content */}
         <main>
-          {/* Hero Section */}
-          <section className="relative bg-green-600 dark:bg-green-800 py-32">
-            <div className="max-w-7xl mx-auto px-4 text-center">
-              <h1 className="text-5xl font-extrabold text-white mb-6">Join the Green Revolution</h1>
-              <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-                Take control of your carbon footprint and join millions of eco-warriors making a difference for our
-                planet's future.
-              </p>
-              <div className="flex justify-center gap-4">
-                <Link href="/carbon-calculator">
-                  <Button
-                    variant="outline"
-                    className="!border-2 text-white bg-#16a34a hover:!bg-green-700 hover:text-white transition-all"
-                  >
-                    Get Started
-                  </Button>
-                </Link>
-                <Button 
-                  variant="outline"
-                  className="!border-2 text-white bg-#16a34a hover:!bg-green-700 hover:text-white transition-all"
-                >
-                  Learn More
-                </Button>
-              </div>
-            </div>
-          </section>
+         {/* Hero Section */}
+<section
+  className="relative bg-cover bg-center bg-no-repeat min-h-[80vh] flex items-center justify-center text-white"
+  style={{ backgroundImage: "url('/green-img.png')" }}
+>
+  {/* Optional dark overlay for better readability */}
+  <div className="absolute inset-0 bg-black bg-opacity-40 z-0"></div>
+
+  {/* Content Block */}
+  <div className="relative z-10 text-center px-6 max-w-3xl">
+    <h1 className="text-5xl font-extrabold text-white mb-6">Join the Green Revolution</h1>
+    <p className="text-xl font-extrabold text-green-100 mb-8">
+      Take control of your carbon footprint and join millions of eco-warriors making a difference for our planet's future.
+    </p>
+    
+    <div className="flex justify-center gap-4">
+      <Link href="/carbon-calculator">
+        <Button
+          variant="outline"
+          className="!border-2 text-white bg-green-600 hover:bg-green-700 transition-all"
+        >
+          Get Started
+        </Button>
+      </Link>
+      <Button
+        variant="outline"
+        className="!border-2 text-white bg-green-600 hover:bg-green-700 transition-all"
+      >
+        Learn More
+      </Button>
+    </div>
+  </div>
+</section>
+
 
           {/* Introduction Section */}
           <section className="py-20 bg-white dark:bg-gray-800 transition-colors duration-300">
