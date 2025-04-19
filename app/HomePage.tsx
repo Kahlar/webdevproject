@@ -174,25 +174,25 @@ const HomePage = () => {
   </div>
 </section>
 
-
           {/* Introduction Section */}
-          <section className="py-20 bg-white dark:bg-gray-800 transition-colors duration-300">
-            <div className="max-w-7xl mx-auto px-4">
-              <div className="text-center max-w-3xl mx-auto">
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                  Your Journey to Sustainable Living Starts Here
-                </h2>
-                <p className="text-lg text-gray-600 dark:text-gray-300">
-                  GreenSphere empowers you with tools and knowledge to reduce your environmental impact. Track your
-                  progress, connect with like-minded individuals, and discover eco-friendly alternatives in your
-                  community.
-                </p>
-              </div>
-            </div>
-          </section>
+<section className="py-20 bg-gradient-to-r from-amber-100 via-green-100 to-lime-200 transition-colors duration-300">
+  <div className="max-w-7xl mx-auto px-4">
+    <div className="text-center max-w-3xl mx-auto">
+      <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+        Your Journey to Sustainable Living Starts Here
+      </h2>
+      <p className="text-lg text-gray-800 dark:text-gray-200">
+        GreenSphere empowers you with tools and knowledge to reduce your environmental impact. Track your
+        progress, connect with like-minded individuals, and discover eco-friendly alternatives in your
+        community.
+      </p>
+    </div>
+  </div>
+</section>
+
 
           {/* Preview Section */}
-          <section className="py-20 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+          <section className="py-20 bg-gradient-to-r from-amber-100 via-green-100 to-lime-200 transition-colors duration-300">
             <div className="max-w-7xl mx-auto px-4">
               <div className="grid md:grid-cols-3 gap-8">
                 <Link href="/carbon-calculator">
@@ -221,7 +221,7 @@ const HomePage = () => {
           </section>
 
           {/* Eco-Facts Section */}
-          <section className="py-20 bg-green-600 dark:bg-green-800 text-white transition-colors duration-300">
+          <section className="py-20 bg-gradient-to-r from-amber-100 via-green-100 to-lime-200 transition-colors duration-300">
             <div className="max-w-7xl mx-auto px-4">
               <h2 className="text-3xl font-bold text-center mb-12">Making a Global Impact</h2>
               <div className="grid md:grid-cols-4 gap-8">
@@ -229,7 +229,7 @@ const HomePage = () => {
                   <div key={index} className="text-center">
                     <div className="flex justify-center mb-4">{fact.icon}</div>
                     <div className="text-4xl font-bold mb-2">{fact.stat}</div>
-                    <div className="text-green-100">{fact.text}</div>
+                    <div className="text-green-700 font-bold">{fact.text}</div>
                   </div>
                 ))}
               </div>
@@ -237,15 +237,15 @@ const HomePage = () => {
           </section>
 
           {/* Call to Action */}
-          <section className="py-20 bg-white dark:bg-gray-800 transition-colors duration-300">
+          <section className="py-20 bg-gradient-to-r from-green-500 to-green-600 transition-colors duration-300">
             <div className="max-w-7xl mx-auto px-4 text-center">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Ready to Make a Difference?</h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+              <p className="text-lg font-bold text-white dark:text-gray-300 mb-8">
                 Join our community of eco-warriors and start your journey towards a sustainable lifestyle.
               </p>
               <Link href="/carbon-calculator"> 
               <Button 
-                className="!bg-green-600 hover:!bg-green-700 dark:!bg-green-700 dark:hover:!bg-green-800 !text-white transition-all inline-flex items-center"
+                className="!bg-white hover:!bg-green-700 dark:!bg-green-700 dark:hover:!bg-green-800 !text-green-800 transition-all inline-flex items-center"
                 >
                 Start Your Green Journey
                 <ArrowRight className="ml-2 h-5 w-5" />
