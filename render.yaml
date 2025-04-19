@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: greensphere-api
+    env: python
+    region: oregon  # or change to your nearest region
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
+    envVars:
+      - key: NEWS_API_KEY
+        value: 42064bd206d74fc6b9d66e52b4d17bfe
+      - key: MONGO_URI
+        value: mongodb+srv://admin:Samprikta_05@leaderboard.kb7pli7.mongodb.net/?retryWrites=true&w=majority&appName=Leaderboard
+    autoDeploy: true
